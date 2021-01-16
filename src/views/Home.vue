@@ -64,7 +64,7 @@ export default {
   methods:{
     searchMovie(){
       this.loader = true
-      axios.get('http://www.omdbapi.com/?s='+this.movieName+'&apikey=b3802ae9').then(response =>{
+      axios.get('https://www.omdbapi.com/?s='+this.movieName+'&apikey=b3802ae9').then(response =>{
         console.log(response)
         this.loader = false
         this.movieResults = response.data.Search
