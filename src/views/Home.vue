@@ -2,6 +2,7 @@
   <div class="container">
     <div class="row mt-5">
       <div class="col-md-12 mb-3">
+        <!-- Search Form -->
         <div class="card">
           <div class="card-body">
              <div class="col-md-12">
@@ -13,29 +14,33 @@
                   <input type="text" placeholder="Search for a movie" class="form-control rounded-0" v-model="movieName">
                   <button class="btn btn-primary rounded-0 position-relative btn-search"><span v-show="!loader">Search</span><span class="loader" v-show="loader"></span></button>
                 </div>
+                <p class="text-danger">{{errorMessage}}</p>
+                
               </form>
             </div>
           </div>
         </div>
       </div>
+      <!-- Search Result -->
       <div class="col-md-6">
         <div class="card">
           <div class="card-body">
             <h5 class="font-weight-bold">Searched for "{{movieName}}"</h5>
             <hr>
             <ul>
-              <li v-for="(movieResult, index) in movieResults" :key="index">{{movieResult.Title}} ({{movieResult.Year}}) <button class="btn btn-info btn-sm rounded-0 float-right" :disabled="disabled == index" @click="nominate(index)">Nominate</button></li>
+              <li v-for="(movieResult, index) in movieResults" :key="index">{{movieResult.Title}} ({{movieResult.Year}}) <button :disabled="disabled" class="btn btn-info btn-sm rounded-0 float-right"  @click.once="nominate(index, $event)" >Nominate</button></li>
             </ul>
           </div>
         </div>
       </div>
+      <!-- Nomination List -->
       <div class="col-md-6">
         <div class="card">
           <div class="card-body">
             <h5 class="font-weight-bold">Nominations</h5>
             <hr>
             <div class="alert alert-warning" v-show="message">{{message}}</div>
-            <ul>
+            <ul v-if="nominationList">
               <li v-for="(nominate, index) in nominationList" :key="index">{{nominate.Title}} ({{nominate.Year}}) <button class="btn btn-danger btn-sm rounded-0 float-right" @click="removeNomination(index)">Remove</button></li>
             </ul>
           </div>
@@ -58,36 +63,45 @@ export default {
       nominationList: [],
       disabled: false,
       message: '',
-      loader: false
+      loader: false,
+      errorMessage: '',
     }
   },
   methods:{
+    // Search Movie
     searchMovie(){
       this.loader = true
       axios.get('https://www.omdbapi.com/?s='+this.movieName+'&apikey=b3802ae9').then(response =>{
-        console.log(response)
         this.loader = false
-        this.movieResults = response.data.Search
-        console.log(this.movieResults)
+        if(response.data.Response == "False"){
+          this.errorMessage = 'Movie Not Found !'
+        }
+        else{
+          this.movieResults = response.data.Search
+          this.errorMessage = ''
+        }
       })
     },
-    nominate(index){
+    // Nominate Movie and store in LocalStorage
+    nominate(index, event){
       if(this.nominationList.length == 5){
         this.message = "You have Nominated 5 Movies already."
       }
       else{
         this.nominationList.unshift(this.movieResults[index])
         localStorage.setItem("nominationList", JSON.stringify(this.nominationList))
-        // this.disabled = true
         this.message = ''
+        event.target.disabled = true
       }
     },
+    // Remove a Novie from Nomination
     removeNomination(index){
       this.nominationList.splice(index, 1);
       localStorage.setItem("nominationList", JSON.stringify(this.nominationList))
       this.message = ''
     },
-  storedNomination() {       
+    // Get Nomination from LocalStorage
+    storedNomination() {       
       if (localStorage.getItem('nominationList')) {
         try {
           this.nominationList = JSON.parse(localStorage.getItem('nominationList'));
@@ -98,6 +112,7 @@ export default {
 		},
 	},
 	mounted() {
+    // Load Nomination List from LocalStorage
 		this.storedNomination()
 	}
 }
@@ -108,6 +123,9 @@ export default {
   }
   .btn-search{
     width: 10%;
+  }
+  input:focus, button:focus{
+    box-shadow: none !important;
   }
   ul li{
     margin-bottom: 10px !important;
@@ -122,7 +140,6 @@ export default {
     border-bottom:4px solid #fff;
     animation: roll 1s infinite linear;
     position: absolute;
-    /* margin-top: 0px; */
     top: 15%; 
     left: 35%;
     transform: translate(50%, -50%)
