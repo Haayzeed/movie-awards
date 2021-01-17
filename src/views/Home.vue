@@ -1,8 +1,13 @@
 <template>
-  <div class="container">
-    <div class="row mt-5">
-      <div class="col-md-12 mb-3">
+<div>
+<div class="col-md-12 banner">
+<h1 class="text-white text-uppercase font-weight-bold">The Shoppies Movie Awards</h1>
+<hr>
+</div>
+  <div class="container mb-3">
+    <div class="row mt-5 mb-5">
         <!-- Search Form -->
+      <div class="col-md-12 mb-3">
         <div class="card">
           <div class="card-body">
              <div class="col-md-12">
@@ -15,7 +20,6 @@
                   <button class="btn btn-primary rounded-0 position-relative btn-search"><span v-show="!loader">Search</span><span class="loader" v-show="loader"></span></button>
                 </div>
                 <p class="text-danger">{{errorMessage}}</p>
-                
               </form>
             </div>
           </div>
@@ -37,7 +41,7 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-body">
-            <h5 class="font-weight-bold">Nominations</h5>
+            <h5 class="font-weight-bold">Nominations <span class="float-right" style="font-size:16px;">{{this.nominationList.length}} Nomination of 5</span></h5>
             <hr>
             <div class="alert alert-warning" v-show="message">{{message}}</div>
             <ul v-if="nominationList">
@@ -47,7 +51,9 @@
         </div>
       </div>
     </div>
+    <p class="text-center">&copy; The Shoppies Movie Awards</p>
   </div>
+</div>
 </template>
 
 <script>
@@ -65,6 +71,7 @@ export default {
       message: '',
       loader: false,
       errorMessage: '',
+      // nomination: 5
     }
   },
   methods:{
@@ -92,6 +99,7 @@ export default {
         localStorage.setItem("nominationList", JSON.stringify(this.nominationList))
         this.message = ''
         event.target.disabled = true
+        this.nomination = this.nominationList.length -1
       }
     },
     // Remove a Novie from Nomination
@@ -120,6 +128,20 @@ export default {
 <style>
   body{
     background: #eee !important;
+  }
+  .banner{
+    background-image: url('../assets/movie_poster_design.jpg');
+    background-color: rgba(0,0,0,0.5);
+    background-blend-mode: overlay;
+    height: 300px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .banner hr{
+    border: 2px solid #fff;
+    width: 15%;    
   }
   .btn-search{
     width: 10%;
